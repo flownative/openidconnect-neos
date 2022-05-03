@@ -1,0 +1,50 @@
+Flownative:
+  OpenIdConnect:
+    Neos:
+      # allows to map expected values to names in the OIDC response
+      identityValueMapping: []
+      # if enabled, Neos users will be created upon successful OIDC login if roles are assigned to the user
+      autoCreateUser: false
+      # can be used to set default roles for auto-created users
+      rolesForAutoCreatedUser: []
+
+    Client:
+      services:
+        neos:
+          options:
+            discoveryUri: '%env:OIDC_DISCOVERY_URI%'
+            clientId: '%env:OIDC_CLIENT_ID%'
+            clientSecret: '%env:OIDC_CLIENT_SECRET%'
+
+      middleware:
+        authenticationProviderName: 'Neos.Neos:Backend'
+
+Neos:
+  Flow:
+    security:
+      authentication:
+        providers:
+          'Neos.Neos:Backend':
+            label: 'OpenID Connect'
+            provider: 'Flownative\OpenIdConnect\Client\Authentication\OpenIdConnectProvider'
+
+            requestPatterns:
+              'Neos.Neos:BackendControllers':
+                pattern: 'ControllerObjectName'
+                patternOptions:
+                  controllerObjectNamePattern: 'Neos\Neos\Controller\.*'
+              'Neos.Neos:ServiceControllers':
+                pattern: 'ControllerObjectName'
+                patternOptions:
+                  controllerObjectNamePattern: 'Neos\Neos\Service\.*'
+
+            providerOptions:
+              accountIdentifierTokenValueName: 'email'
+              serviceName: 'neos'
+            token: 'Flownative\OpenIdConnect\Client\Authentication\OpenIdConnectToken'
+            entryPoint: 'Flownative\OpenIdConnect\Client\Authentication\OpenIdConnectEntryPoint'
+            entryPointOptions:
+              serviceName: 'neos'
+              scope: 'profile email'
+
+        authenticationStrategy: oneToken
