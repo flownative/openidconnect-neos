@@ -34,10 +34,10 @@ composer require flownative/openidconnect-neos
 
 ## Configuration
 
-This packages provies sane defaults for the configuration, suitable for
+This packages provies sane defaults for most of the configuration, suitable for
 Neos CMS.
 
-Only the OIDC provider connection must be set up. The default configuration uses
+The OIDC provider connection must be set up. The default configuration uses
 these environment variables:
 
 - `OIDC_DISCOVERY_URI`
@@ -58,50 +58,28 @@ Flownative:
             clientSecret: '…'
 ```
 
-### Optional settings
+And you must set up how roles are determined, see the next section.
 
-You can set the JWT cookie name if you need to use a different name.
+### Roles
+
+#### Hard-coded roles
+
+You may configure the provider as follows:
 
 ```yaml
 Neos:
-    Flow:
-        security:
-            authentication:
-                providers:
-                    'Neos.Neos:Backend':
-                        providerOptions:
-                            jwtCookieName: 'flownative_oidc_jwt'
+  Flow:
+    security:
+      authentication:
+        providers:
+          'Neos.Neos:Backend':
+            providerOptions:
+              roles:
+                - 'Neos.Neos:Editor'
 ```
 
-If your OpenID Connect provider does not return a `username`, you can map
-it like this:
-
-```yaml
-Flownative:
-  OpenIdConnect:
-    Neos:
-      identityValueMapping:
-        'username': 'email'
-```
-
-So far this assumes you locally create Neos users with the same username as the
-OIDC provider returns. You can enable auto-creation of Neos users like this:
-
-```yaml
-Flownative:
-  OpenIdConnect:
-    Neos:
-      autoCreateUser: true
-      identityValueMapping:
-        'firstname': 'https://flownative.com/given_name'
-        'lastname': 'https://flownative.com/family_name'
-```
-
-The mapping of `firstname` and `lastname` is needed in case those are not
-returned with those names by your OIDC provider. They are used for the created
-users.
-
-### Roles
+That is the simplest way of configuring roles, but also very "static", no variation is
+possible.
 
 #### Roles from Identity Token
 
@@ -173,9 +151,9 @@ Neos:
 You may mix "rolesFromClaims" with "addRolesFromExistingAccount". In  that case
 roles from claims and existing accounts will be merged.
 
-Again, check logs for hints if things are not working as expected.
+Again, check the logs for hints if things are not working as expected.
 
-## Auto-creation of Neos Users
+#### Roles for Auto-Created Neos Users
 
 In case auto-creation of users is enabled, the roles on the new user can be set
 by configuration:
@@ -189,8 +167,59 @@ Flownative:
         - 'Neos.Neos:Editor'
 ```
 
-Note that you still must use (at least) one of the two options to assign roles,
+Note that you still must use (at least) one of the options to assign roles,
 namely "rolesFromClaims" and "addRolesFromExistingAccount".
+
+### Optional settings
+
+You can set the JWT cookie name if you need to use a different name.
+
+```yaml
+Neos:
+    Flow:
+        security:
+            authentication:
+                providers:
+                    'Neos.Neos:Backend':
+                        providerOptions:
+                            jwtCookieName: 'flownative_oidc_jwt'
+```
+
+If your OpenID Connect provider does not return a `username`, you can map
+it like this:
+
+```yaml
+Flownative:
+  OpenIdConnect:
+    Neos:
+      identityValueMapping:
+        'username': 'email'
+```
+
+So far this assumes you locally create Neos users with the same username as the
+OIDC provider returns. You can enable auto-creation of Neos users like this:
+
+```yaml
+Flownative:
+  OpenIdConnect:
+    Neos:
+      autoCreateUser: true
+      identityValueMapping:
+        'firstname': 'https://flownative.com/given_name'
+        'lastname': 'https://flownative.com/family_name'
+```
+
+The mapping of `firstname` and `lastname` is needed in case those are not
+returned with those names by your OIDC provider. They are used for the created
+users.
+
+## Debugging
+
+- Check the security and system log for messages, there is probably something
+  helpful there.
+- Use `./flow configuration:show --path Flownative.OpenIdConnect` to check the
+  settings and look for things you might need to adjust.
+- Repeat that step with the `Neos.Flow.security` settings.
 
 ## Credits and Support
 
