@@ -211,7 +211,17 @@ Flownative:
 
 The mapping of `firstname` and `lastname` is needed in case those are not
 returned with those names by your OIDC provider. They are used for the created
-users.
+users. If the identity token contains first name and last name in a single 
+property, you can use the "name" mapping:
+
+```yaml
+Flownative:
+  OpenIdConnect:
+    Neos:
+      autoCreateUser: true
+      identityValueMapping:
+        'name': 'https://flownative.com/given_name_and_family_name'
+```
 
 ## Debugging
 
