@@ -17,6 +17,7 @@ use Neos\Neos\Domain\Model\User;
 use Neos\Neos\Domain\Service\UserService;
 use Neos\Party\Domain\Model\ElectronicAddress;
 use Psr\Log\LoggerInterface;
+use UnexpectedValueException;
 
 class AccountManager
 {
@@ -114,11 +115,20 @@ class AccountManager
             return;
         }
 
+        try {
+            $firstName = $this->getMappedIdentityValue($identityToken, 'firstname');
+            $lastName = $this->getMappedIdentityValue($identityToken, 'lastname');
+        } catch (UnexpectedValueException) {
+            $nameParts = explode(' ', $this->getMappedIdentityValue($identityToken, 'name'));
+            $lastName = array_pop($nameParts);
+            $firstName = implode(' ', $nameParts);
+        }
+
         $user = $this->userService->createUser(
             $username,
             Algorithms::generateRandomString(30),
-            $this->getMappedIdentityValue($identityToken, 'firstname'),
-            $this->getMappedIdentityValue($identityToken, 'lastname'),
+            $firstName,
+            $lastName,
             $rolesForAutoCreatedUser,
             $authenticationProvider
         );
@@ -132,7 +142,7 @@ class AccountManager
             $electronicAddress->setIdentifier($email);
             $electronicAddress->setUsage('Work');
             $user->setPrimaryElectronicAddress($electronicAddress);
-        } catch (\UnexpectedValueException $e) {
+        } catch (UnexpectedValueException $e) {
         }
 
         $this->persistenceManager->persistAll();
@@ -171,6 +181,7 @@ class AccountManager
      * @param IdentityToken $identityToken
      * @param string $key
      * @return string
+     * @throws UnexpectedValueException
      */
     protected function getMappedIdentityValue(IdentityToken $identityToken, string $key): string
     {
@@ -178,7 +189,7 @@ class AccountManager
         $identityValue = $identityToken->values[$mappedKey] ?? null;
 
         if ($identityValue === null) {
-            throw new \UnexpectedValueException(sprintf('Identity values do not contain the key "%s", available are %s', $mappedKey, implode(', ', array_keys($identityToken->values))));
+            throw new UnexpectedValueException(sprintf('Identity values do not contain the key "%s", available are %s', $mappedKey, implode(', ', array_keys($identityToken->values))));
         }
 
         return $identityValue;
