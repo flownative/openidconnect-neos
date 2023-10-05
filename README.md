@@ -28,7 +28,7 @@ In order to use this plugin you need:
 
 The plugin is installed via Composer:
 
-```
+```bash
 composer require flownative/openidconnect-neos
 ```
 
@@ -46,7 +46,7 @@ these environment variables:
 
 You may of course set the values directly:
 
-```
+```yaml
 Flownative:
   OpenIdConnect:
     Client:
@@ -211,7 +211,7 @@ Flownative:
 
 The mapping of `firstname` and `lastname` is needed in case those are not
 returned with those names by your OIDC provider. They are used for the created
-users. If the identity token contains first name and last name in a single 
+users. If the identity token contains first name and last name in a single
 property, you can use the "name" mapping:
 
 ```yaml
