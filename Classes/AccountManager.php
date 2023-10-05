@@ -174,6 +174,9 @@ class AccountManager
         // The $oidcCredentialSource it is too large to be actually persisted to the database field
         $account->setCredentialsSource($oidcCredentialSource);
         $account->setRoles($assignedRoles);
+        
+        $this->persistenceManager->clearState();
+        
         return $account;
     }
 
