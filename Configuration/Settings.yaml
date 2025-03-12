@@ -7,6 +7,7 @@ Flownative:
       autoCreateUser: false
       # can be used to set default roles for auto-created users
       rolesForAutoCreatedUser: []
+      lowercaseUsername: false
 
     Client:
       services:

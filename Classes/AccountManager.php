@@ -41,6 +41,12 @@ class AccountManager
     protected $userService;
 
     /**
+     * @Flow\InjectConfiguration(package="Flownative.OpenIdConnect.Neos", path="lowercaseUsername")
+     * @var bool
+     */
+    protected bool $lowercaseUsername = false;
+
+    /**
      * @Flow\InjectConfiguration(package="Flownative.OpenIdConnect.Neos", path="identityValueMapping")
      * @var array
      */
@@ -91,6 +97,9 @@ class AccountManager
     public function addBackendUserAndAccountIfNotExistent(TokenInterface $authenticationToken, IdentityToken $identityToken): void
     {
         $username = $this->getMappedIdentityValue($identityToken, 'username');
+        if ($this->lowercaseUsername === true) {
+            $username = strtolower($username);
+        }
         $account = $authenticationToken->getAccount();
         $authenticationProvider = $account->getAuthenticationProviderName();
 

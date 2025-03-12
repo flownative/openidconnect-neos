@@ -9,9 +9,6 @@ use Neos\Flow\Package\Package as BasePackage;
 
 class Package extends BasePackage
 {
-    /**
-     * @param Bootstrap $bootstrap
-     */
     public function boot(Bootstrap $bootstrap)
     {
         $dispatcher = $bootstrap->getSignalSlotDispatcher();
