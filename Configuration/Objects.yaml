@@ -1,0 +1,13 @@
+Flownative\OpenIdConnect\Neos\Authentication\ClaimRoleMapper:
+  arguments:
+    2:
+      setting: 'Flownative.OpenIdConnect.Neos.rolesFromClaims'
+
+Flownative\OpenIdConnect\Neos\Authentication\NeosUserAccountResolver:
+  arguments:
+    6:
+      setting: 'Flownative.OpenIdConnect.Neos.autoCreateUser'
+    7:
+      setting: 'Flownative.OpenIdConnect.Neos.rolesForAutoCreatedUser'
+    8:
+      setting: 'Flownative.OpenIdConnect.Neos.identityValueMapping'
