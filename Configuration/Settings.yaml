@@ -1,12 +1,26 @@
 Flownative:
   OpenIdConnect:
     Neos:
-      # allows to map expected values to names in the OIDC response
-      identityValueMapping: []
-      # if enabled, Neos users will be created upon successful OIDC login if roles are assigned to the user
+      # Claims which contain role identifiers, or claims with a mapping of their values to role identifiers. If set, the identity
+      # provider decides the roles of Neos users: they replace the roles of the account with every login. If empty, the roles
+      # are managed in Neos.
+      rolesFromClaims: []
+      # Creates a Neos user on the first login of an identity which has no account yet
       autoCreateUser: false
-      # can be used to set default roles for auto-created users
+      # Roles of a user created by "autoCreateUser", if the roles are managed in Neos. With "rolesFromClaims", the claims alone
+      # decide the roles.
       rolesForAutoCreatedUser: []
+      # Claims which contain the values of a user created by "autoCreateUser". "name" is only used if neither "firstname" nor
+      # "lastname" is present. The email address is only stored if the claim "email_verified" is true.
+      identityValueMapping:
+        firstname: 'given_name'
+        lastname: 'family_name'
+        name: 'name'
+        email: 'email'
+      # Signs the user out at the identity provider as well, when they sign out of Neos with a POST request
+      signOutAtIdentityProvider: false
+      # Absolute URI the identity provider redirects to after signing out. If empty, it's the login page of Neos.
+      postLogoutRedirectUri: null
 
     Client:
       services:
@@ -15,9 +29,6 @@ Flownative:
             discoveryUri: '%env:OIDC_DISCOVERY_URI%'
             clientId: '%env:OIDC_CLIENT_ID%'
             clientSecret: '%env:OIDC_CLIENT_SECRET%'
-
-      middleware:
-        authenticationProviderName: 'Neos.Neos:Backend'
 
 Neos:
   Flow:
@@ -39,12 +50,14 @@ Neos:
                   controllerObjectNamePattern: 'Neos\Neos\Service\.*'
 
             providerOptions:
-              accountIdentifierTokenValueName: 'email'
               serviceName: 'neos'
-            token: 'Flownative\OpenIdConnect\Client\Authentication\OpenIdConnectToken'
+              accountIdentifierTokenValueName: 'email'
+              accountResolver: 'Flownative\OpenIdConnect\Neos\Authentication\NeosUserAccountResolver'
+            token: 'Flownative\OpenIdConnect\Client\Authentication\OpenIdConnectSessionToken'
             entryPoint: 'Flownative\OpenIdConnect\Client\Authentication\OpenIdConnectEntryPoint'
             entryPointOptions:
               serviceName: 'neos'
-              scope: 'profile email'
+              scope: 'openid profile email'
+              requestRefreshToken: false
 
         authenticationStrategy: oneToken
